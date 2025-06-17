@@ -32,5 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - name: Deployment placeholder
-        run: echo "This will deploy to your VM via SSH"
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if [ ! -d ds2-HelloWorld ]; then
+              git clone https://github.com/Nimisha-fh/ds2-HelloWorld.git
+            fi
+            cd ds2-HelloWorld
+            git pull origin main
+            docker-compose down || true
+            docker-compose up -d --build
